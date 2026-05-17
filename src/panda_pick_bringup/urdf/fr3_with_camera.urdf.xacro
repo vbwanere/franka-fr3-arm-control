@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot name="fr3_with_camera" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Args mirror franka_description's expected names -->
+  <xacro:arg name="robot_type"        default="fr3"/>
+  <xacro:arg name="hand"              default="true"/>
+  <xacro:arg name="ee_id"             default="franka_hand"/>
+  <xacro:arg name="ros2_control"      default="true"/>
+  <xacro:arg name="gazebo"            default="true"/>
+  <xacro:arg name="use_fake_hardware" default="false"/>
+
+  <!-- Include the official Franka robot xacro -->
+  <xacro:include filename="$(find franka_description)/robots/$(arg robot_type)/$(arg robot_type).urdf.xacro"/>
+
+  <!-- Include the camera macro -->
+  <xacro:include filename="$(find panda_pick_bringup)/urdf/d435_wrist_camera.xacro"/>
+
+  <!-- Attach camera to the hand -->
+  <xacro:d435_wrist_camera
+    parent="$(arg robot_type)_hand"
+    prefix=""
+    xyz="0 0 0.05"
+    rpy="0 0 0"/>
+
+</robot>

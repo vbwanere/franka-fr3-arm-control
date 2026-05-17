@@ -3,7 +3,7 @@
 <package format="3">
   <name>panda_pick_bringup</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Bringup launch files for Franka pick-and-place simulation with RGB-D camera</description>
   <maintainer email="vbwanere@gmail.com">vbwanere</maintainer>
   <license>MIT</license>
 
@@ -13,6 +13,7 @@
   <depend>franka_fr3_moveit_config</depend>
   <depend>franka_gazebo_bringup</depend>
   <depend>ros_gz_sim</depend>
+  <depend>ros_gz_bridge</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

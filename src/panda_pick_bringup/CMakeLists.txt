@@ -12,6 +12,15 @@ find_package(franka_fr3_moveit_config REQUIRED)
 find_package(franka_gazebo_bringup REQUIRED)
 find_package(ros_gz_sim REQUIRED)
 
+install(DIRECTORY
+  launch
+  config
+  rviz
+  worlds
+  urdf
+  DESTINATION share/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
