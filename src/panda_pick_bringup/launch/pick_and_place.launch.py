@@ -10,7 +10,7 @@ from launch.actions import (
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-
+import re
 
 def generate_launch_description():
     os.environ['GZ_SIM_RESOURCE_PATH'] = os.path.dirname(
@@ -33,6 +33,7 @@ def generate_launch_description():
             'ee_id': franka_hand,
         },
     )
+
     robot_description = {'robot_description': robot_description_config.toxml()}
 
     controllers_yaml = os.path.join(pkg_share, 'config', 'controllers.yaml')
@@ -91,6 +92,16 @@ def generate_launch_description():
         output='screen',
     )
 
+    load_gripper_controller = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['fr3_gripper_controller',
+                   '--controller-manager', '/controller_manager',
+                   '--controller-type', 'position_controllers/JointGroupPositionController',
+                   '--param-file', controllers_yaml],
+        output='screen',
+    )
+
     gz_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -127,7 +138,7 @@ def generate_launch_description():
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=load_jsb,
-                on_exit=[load_arm_controller],
+                on_exit=[load_arm_controller, load_gripper_controller],
             )
         ),
     ])
