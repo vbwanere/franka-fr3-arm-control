@@ -19,14 +19,20 @@ ros2 pkg create --build-type ament_cmake franka_task_planning
 
 
 ```
+pkill -9 -f "ros2 launch"
+pkill -9 -f "ign gazebo"
+pkill -9 -f "ruby /usr/bin/ign"
+pkill -9 -f "controller_manager"
+pkill -9 -f "robot_state_publisher"
+pkill -9 -f "parameter_bridge"
 pkill -9 -f rviz2
-pkill -9 -f robot_state_publisher
-pkill -9 -f joint_state_publisher_gui
-sleep 1
-pgrep -af "rviz2\|robot_state_publisher\|joint_state_publisher" || echo "all dead"
+sleep 3
+ros2 daemon stop
+ros2 daemon start
 
-cd ~/Vaibhav-GitHub/franka-panda-arm-control
-colcon build --packages-select fanuc_description
+colcon buid
 source install/setup.bash
-ros2 launch fanuc_description view_robot.launch.py
+ros2 launch panda_pick_bringup pick_and_place.launch.py
 ```
+
+

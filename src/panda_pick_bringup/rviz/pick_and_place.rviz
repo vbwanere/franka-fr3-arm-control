@@ -1,0 +1,57 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Enabled: true
+      Description Topic:
+        Value: /robot_description
+      Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Show Names: false
+      Show Axes: true
+      Show Arrows: false
+    - Class: rviz_default_plugins/Image
+      Name: RGB Camera
+      Enabled: true
+      Topic:
+        Value: /camera/color/image_raw
+        Reliability Policy: Best Effort
+    - Class: rviz_default_plugins/Image
+      Name: Depth Camera
+      Enabled: true
+      Topic:
+        Value: /camera/depth
+        Reliability Policy: Best Effort
+  Global Options:
+    Fixed Frame: world
+    Background Color: 48; 48; 48
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 2.5
+      Focal Point:
+        X: 0.3
+        Y: 0
+        Z: 0.4
+      Pitch: 0.4
+      Yaw: 2.3
+
+Window Geometry:
+  Height: 900
+  Width: 1600
