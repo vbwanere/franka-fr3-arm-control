@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <robot name="fr3_with_camera" xmlns:xacro="http://www.ros.org/wiki/xacro">
-
-  <!-- Args mirror franka_description's expected names -->
   <xacro:arg name="robot_type"        default="fr3"/>
   <xacro:arg name="hand"              default="true"/>
   <xacro:arg name="ee_id"             default="franka_hand"/>
@@ -9,18 +7,62 @@
   <xacro:arg name="gazebo"            default="true"/>
   <xacro:arg name="use_fake_hardware" default="false"/>
 
-  <!-- Include the official Franka robot xacro -->
+  <!-- Franka FR3 -->
   <xacro:include filename="$(find franka_description)/robots/$(arg robot_type)/$(arg robot_type).urdf.xacro"/>
 
-  <!-- Include the camera macro -->
-  <xacro:include filename="$(find panda_pick_bringup)/urdf/d435_wrist_camera.xacro"/>
+  <!-- Official Intel RealSense D435 macro -->
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
 
-  <!-- Attach camera to the hand -->
-  <xacro:d435_wrist_camera
-    parent="$(arg robot_type)_hand"
-    prefix=""
-    xyz="0 0 0.05"
-    rpy="0 0 0"/>
+  <!-- Mount the camera on the gripper hand.
+       use_nominal_extrinsics:=true publishes all the camera_*_frame and
+       camera_*_optical_frame TFs from the URDF (correct for sim, where
+       there's no RealSense driver to publish them at runtime). -->
+  <xacro:sensor_d435 parent="$(arg robot_type)_hand"
+                     name="camera"
+                     use_nominal_extrinsics="true"
+                     add_plug="false"
+                     use_mesh="true">
+    <origin xyz="0.017 0 0.05" rpy="${pi} ${-pi/2} 0"/>
+  </xacro:sensor_d435>
 
+  <!-- Ignition sensor plugins for the D435 (attached to camera_link
+       so the sensor poses match the URDF). The realsense2_description
+       package doesn't include Gazebo sensor blocks. -->
+  <gazebo reference="camera_link">
+    <sensor name="rgb_camera" type="camera">
+      <pose>0 0.015 0 0 0 0</pose>
+      <camera>
+        <horizontal_fov>1.2043</horizontal_fov>
+        <image>
+          <width>1280</width>
+          <height>720</height>
+          <format>RGB_INT8</format>
+        </image>
+        <clip><near>0.1</near><far>100.0</far></clip>
+      </camera>
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>true</visualize>
+      <topic>camera/color/image_raw</topic>
+      <gz_frame_id>camera_color_optical_frame</gz_frame_id>
+    </sensor>
 
+    <sensor name="depth_camera" type="depth_camera">
+      <pose>0 0 0 0 0 0</pose>
+      <camera>
+        <horizontal_fov>1.5184</horizontal_fov>
+        <image>
+          <width>1280</width>
+          <height>720</height>
+          <format>R_FLOAT32</format>
+        </image>
+        <clip><near>0.2</near><far>10.0</far></clip>
+      </camera>
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>true</visualize>
+      <topic>camera/depth</topic>
+      <gz_frame_id>camera_depth_optical_frame</gz_frame_id>
+    </sensor>
+  </gazebo>
 </robot>

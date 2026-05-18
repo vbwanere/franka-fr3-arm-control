@@ -13,8 +13,10 @@ from launch_ros.actions import Node
 import re
 
 def generate_launch_description():
-    os.environ['GZ_SIM_RESOURCE_PATH'] = os.path.dirname(
-        get_package_share_directory('franka_description'))
+    os.environ['GZ_SIM_RESOURCE_PATH'] = ':'.join([
+        os.path.dirname(get_package_share_directory('franka_description')),
+        os.path.dirname(get_package_share_directory('realsense2_description')),
+    ])
 
     robot_type = 'fr3'
     load_gripper = 'true'

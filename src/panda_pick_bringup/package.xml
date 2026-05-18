@@ -14,6 +14,7 @@
   <depend>franka_gazebo_bringup</depend>
   <depend>ros_gz_sim</depend>
   <depend>ros_gz_bridge</depend>
+  <exec_depend>realsense2_description</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

@@ -32,6 +32,7 @@ colcon build
 source install/setup.bash
 ros2 launch panda_pick_bringup pick_and_place.launch.py
 ```
+
 ## TODO:
 MoveIt2 integration — wire up franka_fr3_moveit_config so you can plan via RViz GUI (drag the end-effector, hit Plan & Execute). This is the natural next step.
 

@@ -40,13 +40,37 @@ def generate_launch_description():
         get_package_share_directory('franka_description'),
         'robots', 'fr3', 'fr3.srdf.xacro',
     )
+
     robot_description_semantic_config = xacro.process_file(
         srdf_xacro,
         mappings={'hand': 'true', 'ee_id': 'franka_hand'},
     )
-    robot_description_semantic = {
-        'robot_description_semantic': robot_description_semantic_config.toxml()
-    }
+    srdf_xml = robot_description_semantic_config.toxml()
+
+    # Patch SRDF to match our combined URDF (fr3_with_camera) and ignore
+    # collisions between the wrist-mounted D435 camera and gripper/hand links.
+    srdf_xml = srdf_xml.replace(
+        '<robot name="fr3">', '<robot name="fr3_with_camera">'
+    )
+    # Remove Franka's virtual_joint (it references 'base' which we don't have);
+    # our URDF has a real <world>→fr3_link0 fixed joint that MoveIt sees directly.
+    import re
+    srdf_xml = re.sub(
+        r'<virtual_joint[^/]*/>', '', srdf_xml
+    )
+    # Add camera-link collision-ignore pairs before </robot>
+    camera_ignores = ''.join(
+        f'<disable_collisions link1="camera_link" link2="{link}" reason="Never"/>\n'
+        for link in [
+            'fr3_hand', 'fr3_hand_tcp',
+            'fr3_leftfinger', 'fr3_rightfinger',
+            'fr3_link5', 'fr3_link6', 'fr3_link7', 'fr3_link8',
+        ]
+    )
+    srdf_xml = srdf_xml.replace('</robot>', camera_ignores + '</robot>')
+
+    robot_description_semantic = {'robot_description_semantic': srdf_xml}
+
 
     # Kinematics, planning, controllers — all from Franka's MoveIt config
     kinematics_yaml = load_yaml('franka_fr3_moveit_config', 'config/kinematics.yaml')
