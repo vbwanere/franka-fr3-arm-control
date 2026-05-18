@@ -1,44 +1,99 @@
-# Franka panda arm control using ROS2 for pick and place operations (ROS2 Humble).
+# Franka FR3 Arm Control with ROS 2 + Ignition Gazebo (ROS 2 Humble)
 
-## Getting Started:
+A simulation environment for the Franka FR3 robotic arm with a wrist-mounted Intel RealSense D435 camera, built on ROS 2 Humble and Ignition Gazebo Fortress. Includes `ros2_control` integration, MoveIt2 motion planning, and a Cartesian ellipse trajectory demo.
 
+## Features
+- Franka FR3 7-DOF arm in Ignition Gazebo with `gz_ros2_control`
+- Wrist-mounted RealSense D435 (official `realsense2_description` mesh, looking down the grip axis)
+- RGB + depth streams bridged to ROS via `ros_gz_bridge`
+- Joint trajectory controller for the arm + single-finger position controller for the gripper
+- MoveIt2 motion planning (`move_group` + RViz MotionPlanning plugin)
+- Cartesian path demo: end-effector traces a 3D ellipse in the base frame
+
+## Prerequisites
+- Ubuntu 22.04
+- ROS 2 Humble - [Installation Guide](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)
+- Ignition Gazebo Fortress
+- libfranka 0.13+ (`sudo apt install ros-humble-libfranka`)
+
+## Installation
+### Clone the workspace
+```bash
+cd ~
+git clone git@github.com:vbwanere/franka-fr3-arm-control.git
+cd franka-panda-arm-control
 ```
-git clone -b humble https://github.com/frankaemika/franka_description.git
-git clone -b humble https://github.com/frankaemika/franka_ros2.git
+
+The repo is the workspace root; it ships `src/` with `franka_description`, `franka_ros2`, and `panda_pick_bringup` already in place. `realsense2_description` is pulled via apt.
+
+
+### Install dependencies
+```bash
+sudo apt install \
+  ros-humble-ros-gz \
+  ros-humble-gz-ros2-control \
+  ros-humble-realsense2-description \
+  ros-humble-moveit \
+  ros-humble-libfranka
+cd ~/franka-panda-arm-control
+rosdep install --from-paths src -y --ignore-src
 ```
 
-### Building PackagesFrom inside the repo ```franka-panda-arm-control``` run each of the following lines individually:
+### Build
+```bash
+colcon build --symlink-install
+source install/setup.bash
 ```
-cd src
-ros2 pkg create --build-type ament_cmake panda_pick_bringup
-ros2 pkg create --build-type ament_cmake franka_ros2_control
-ros2 pkg create --build-type ament_cmake franka_task_planning
-````
 
+## Running the Simulation
 
-```
-pkill -9 -f "ros2 launch"
-pkill -9 -f "ign gazebo"
-pkill -9 -f "ruby /usr/bin/ign"
-pkill -9 -f "controller_manager"
-pkill -9 -f "robot_state_publisher"
-pkill -9 -f "parameter_bridge"
-pkill -9 -f rviz2
-sleep 3
-ros2 daemon stop
-ros2 daemon start
-
-colcon build
+### Terminal 1 — Robot + Gazebo + Controllers
+```bash
 source install/setup.bash
 ros2 launch panda_pick_bringup pick_and_place.launch.py
 ```
+Wait until you see `Configured and activated fr3_arm_controller`. Gazebo and an RViz with the camera feeds will open.
 
-## TODO:
-MoveIt2 integration — wire up franka_fr3_moveit_config so you can plan via RViz GUI (drag the end-effector, hit Plan & Execute). This is the natural next step.
+### Terminal 2 — MoveIt2
+```bash
+source install/setup.bash
+ros2 launch panda_pick_bringup moveit_demo.launch.py
+```
+Wait until you see `You can start planning now!`. A second RViz opens with the MotionPlanning plugin — drag the end-effector and hit Plan & Execute.
 
-AprilTag pipeline — bring back your detection code from the old project. The camera topics are ready.
+### Terminal 3 — Cartesian Ellipse Demo
+```bash
+source install/setup.bash
+ros2 run panda_pick_bringup ellipse_trajectory.py
+```
+The end-effector traces a horizontal ellipse (center `(0.4, 0, 0.5)` in `fr3_link0`, radii `0.15 × 0.10` m).
 
-Load your final.world — convert your old Gazebo Classic .world files to Ignition SDF and load instead of sensor_demo_world.sdf.
+### Gripper
+```bash
+# Open
+ros2 topic pub --once /fr3_gripper_controller/commands std_msgs/msg/Float64MultiArray "data: [0.04]"
+# Close
+ros2 topic pub --once /fr3_gripper_controller/commands std_msgs/msg/Float64MultiArray "data: [0.0]"
+```
+**Note:** only the left finger animates in sim due to a known `gz_ros2_control` mimic-joint limitation on Humble. The right finger tracks correctly on real hardware via libfranka.
 
-Gripper control — franka_finger_joint1 is in the URDF but no controller for it. Add a position_controller for the gripper, then you can pinch/release.
+## Cleanup Between Runs
+Stale Gazebo processes block the next launch. Run between sessions:
+```bash
+pkill -9 -f "ign gazebo"
+pkill -9 -f "ruby /usr/bin/ign"
+sleep 2
+```
 
+## Package Layout
+- `panda_pick_bringup/` — project bringup (launch files, config, URDF with D435 camera, ellipse trajectory script)
+- `franka_description/` — official Franka URDF and meshes (FER, FR3, FP3 variants)
+- `franka_ros2/` — official Franka ROS 2 stack (hardware interface, MoveIt config, controllers, gripper)
+- `franka_task_planning/` — placeholder for AprilTag detection pipeline (msgs from old ROS 1 project)
+
+## TODO
+- **AprilTag pipeline** — port the detection code from the old ROS 1 project into `franka_task_planning`, run on the live `/camera/color/image_raw` feed, and publish detected poses in `fr3_link0` for pick planning.
+- **Custom controller** — implement a torque-level controller (e.g. computed-torque or impedance) as a `ros2_control` plugin, replacing the simple position interface for more realistic dynamics.
+- **Custom Gazebo world** — model the original lab scene (workbench, dispenser, turntable, scoring platforms) as a native Ignition SDF.
+- **Gripper sim fix** — work around the `gz_ros2_control` mimic-joint bug so the right finger also animates in simulation.
+- **Real hardware bring-up** — use `franka_bringup`'s `franka.launch.py` against the FCI to run the same MoveIt and trajectory code on a physical FR3.
