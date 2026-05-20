@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="cricket_ball">
+    <pose>0.0 0.0 1.0 0 0 0</pose>
+    <link name="ball_link">
+      <inertial>
+        <mass>0.156</mass>
+        <inertia>
+          <ixx>8.32e-5</ixx><iyy>8.32e-5</iyy><izz>8.32e-5</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="ball_collision">
+        <geometry><sphere><radius>0.0365</radius></sphere></geometry>
+        <surface>
+          <friction><ode><mu>0.6</mu><mu2>0.6</mu2></ode></friction>
+          <bounce>
+            <restitution_coefficient>0.4</restitution_coefficient>
+            <threshold>0.01</threshold>
+          </bounce>
+        </surface>
+      </collision>
+      <visual name="ball_visual">
+        <geometry><sphere><radius>0.0365</radius></sphere></geometry>
+        <material>
+          <ambient>0.7 0.1 0.1 1</ambient>
+          <diffuse>0.8 0.15 0.15 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <!-- <plugin
+      filename="gz-sim-detachable-joint-system"
+      name="gz::sim::systems::DetachableJoint">
+      <parent_link>ball_link</parent_link>
+      <child_model>fr3</child_model>
+      <child_link>fr3_leftfinger</child_link>
+      <topic>/cricket_ball/detach</topic>
+      <suppress_child_warning>true</suppress_child_warning>
+    </plugin> -->
+    
+  </model>
+</sdf>

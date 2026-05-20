@@ -18,11 +18,14 @@ install(DIRECTORY
   rviz
   worlds
   urdf
+  models
   DESTINATION share/${PROJECT_NAME}
 )
 
 install(PROGRAMS
   scripts/ellipse_trajectory.py
+  scripts/bowling.py
+  scripts/bowling_joint.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

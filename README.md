@@ -80,9 +80,7 @@ ros2 topic pub --once /fr3_gripper_controller/commands std_msgs/msg/Float64Multi
 ## Cleanup Between Runs
 Stale Gazebo processes block the next launch. Run between sessions:
 ```bash
-pkill -9 -f "ign gazebo"
-pkill -9 -f "ruby /usr/bin/ign"
-sleep 2
+pkill -9 -f "ign gazebo"; pkill -9 -f "ruby /usr/bin/ign"; sleep 2
 ```
 
 ## Package Layout

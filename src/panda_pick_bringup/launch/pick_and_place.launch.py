@@ -104,6 +104,19 @@ def generate_launch_description():
         output='screen',
     )
 
+    # spawn_ball = Node(
+    #     package='ros_gz_sim',
+    #     executable='create',
+    #     arguments=[
+    #         '-file', os.path.join(
+    #             pkg_share, 'models', 'cricket_ball', 'model.sdf'
+    #         ),
+    #         '-name', 'cricket_ball',
+    #         '-x', '0.31', '-y', '0.0', '-z', '0.45',
+    #     ],
+    #     output='screen',
+    # )
+
     gz_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -111,6 +124,7 @@ def generate_launch_description():
             '/camera/color/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera/depth@sensor_msgs/msg/Image[gz.msgs.Image',
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            # '/cricket_ball/detach@std_msgs/msg/Empty]gz.msgs.Empty',
         ],
         output='screen',
     )
@@ -143,4 +157,10 @@ def generate_launch_description():
                 on_exit=[load_arm_controller, load_gripper_controller],
             )
         ),
+        # RegisterEventHandler(
+        #     event_handler=OnProcessExit(
+        #         target_action=load_gripper_controller,
+        #         on_exit=[spawn_ball],
+        #     )
+        # ),
     ])
