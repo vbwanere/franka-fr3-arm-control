@@ -58,19 +58,18 @@ ros2 launch panda_pick_bringup pick_and_place.launch.py
 ```
 Wait until you see `Configured and activated fr3_arm_controller`. Gazebo and an RViz with the camera feeds will open.
 
-### Terminal 2 — MoveIt2
+### Terminal 2 — Bowling
+```bash
+source install/setup.bash
+ros2 run panda_pick_bringup bowling_joint.py
+```
+
+### Terminal 3 — MoveIt2 (Optional)
 ```bash
 source install/setup.bash
 ros2 launch panda_pick_bringup moveit_demo.launch.py
 ```
 Wait until you see `You can start planning now!`. A second RViz opens with the MotionPlanning plugin — drag the end-effector and hit Plan & Execute.
-
-### Terminal 3 — Cartesian Ellipse Demo
-```bash
-source install/setup.bash
-ros2 run panda_pick_bringup ellipse_trajectory.py
-```
-The end-effector traces a horizontal ellipse (center `(0.4, 0, 0.5)` in `fr3_link0`, radii `0.15 × 0.10` m).
 
 ### Gripper
 ```bash
@@ -94,8 +93,8 @@ pkill -9 -f "ign gazebo"; pkill -9 -f "ruby /usr/bin/ign"; sleep 2
 - `franka_task_planning/` — placeholder for AprilTag detection pipeline (msgs from old ROS 1 project)
 
 ## TODO
-- **AprilTag pipeline** — port the detection code from the old ROS 1 project into `franka_task_planning`, run on the live `/camera/color/image_raw` feed, and publish detected poses in `fr3_link0` for pick planning.
 - **Custom controller** — implement a torque-level controller (e.g. computed-torque or impedance) as a `ros2_control` plugin, replacing the simple position interface for more realistic dynamics.
 - **Custom Gazebo world** — model the original lab scene (workbench, dispenser, turntable, scoring platforms) as a native Ignition SDF.
 - **Gripper sim fix** — work around the `gz_ros2_control` mimic-joint bug so the right finger also animates in simulation.
 - **Real hardware bring-up** — use `franka_bringup`'s `franka.launch.py` against the FCI to run the same MoveIt and trajectory code on a physical FR3.
+- **AprilTag pipeline** — port the detection code from the old ROS 1 project into `franka_task_planning`, run on the live `/camera/color/image_raw` feed, and publish detected poses in `fr3_link0` for pick planning.
