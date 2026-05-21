@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="cricket_scene">
+    <static>true</static>
+
+    <!-- Pitch strip: 20m long, 3m wide, brown -->
+    <link name="pitch">
+      <pose>10 0 0.01 0 0 0</pose>
+      <collision name="col"><geometry><box><size>20 3 0.02</size></box></geometry></collision>
+      <visual name="vis">
+        <geometry><box><size>20 3 0.02</size></box></geometry>
+        <material>
+          <ambient>0.5 0.35 0.2 1</ambient>
+          <diffuse>0.55 0.4 0.25 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <!-- Outfield: 50m × 50m, green -->
+    <link name="outfield">
+      <pose>10 0 0.005 0 0 0</pose>
+      <collision name="col"><geometry><box><size>50 50 0.01</size></box></geometry></collision>
+      <visual name="vis">
+        <geometry><box><size>50 50 0.01</size></box></geometry>
+        <material>
+          <ambient>0.15 0.45 0.15 1</ambient>
+          <diffuse>0.2 0.55 0.2 1</diffuse>
+        </material>
+      </visual>
+    </link>
+
+    <!-- Bowling crease line (white) -->
+    <link name="bowling_crease">
+      <pose>1.22 0 0.025 0 0 0</pose>
+      <visual name="vis">
+        <geometry><box><size>0.05 2.64 0.005</size></box></geometry>
+        <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+      </visual>
+    </link>
+
+    <!-- Batting crease line (white) at the far end -->
+    <link name="batting_crease">
+      <pose>20.12 0 0.025 0 0 0</pose>
+      <visual name="vis">
+        <geometry><box><size>0.05 2.64 0.005</size></box></geometry>
+        <material><ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse></material>
+      </visual>
+    </link>
+
+    <!-- Bowler-end stumps: 3 cylinders 71cm tall, 22cm apart -->
+    <link name="stump_bowler_1">
+      <pose>0 -0.11 0.355 0 0 0</pose>
+      <visual name="vis"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry>
+        <material><ambient>0.9 0.85 0.7 1</ambient><diffuse>0.95 0.9 0.75 1</diffuse></material></visual>
+      <collision name="col"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry></collision>
+    </link>
+    <link name="stump_bowler_2">
+      <pose>0 0 0.355 0 0 0</pose>
+      <visual name="vis"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry>
+        <material><ambient>0.9 0.85 0.7 1</ambient><diffuse>0.95 0.9 0.75 1</diffuse></material></visual>
+      <collision name="col"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry></collision>
+    </link>
+    <link name="stump_bowler_3">
+      <pose>0 0.11 0.355 0 0 0</pose>
+      <visual name="vis"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry>
+        <material><ambient>0.9 0.85 0.7 1</ambient><diffuse>0.95 0.9 0.75 1</diffuse></material></visual>
+      <collision name="col"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry></collision>
+    </link>
+
+    <!-- Batsman-end stumps (mirror at 20.12m) -->
+    <link name="stump_batsman_1">
+      <pose>20.12 -0.11 0.355 0 0 0</pose>
+      <visual name="vis"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry>
+        <material><ambient>0.9 0.85 0.7 1</ambient><diffuse>0.95 0.9 0.75 1</diffuse></material></visual>
+      <collision name="col"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry></collision>
+    </link>
+    <link name="stump_batsman_2">
+      <pose>20.12 0 0.355 0 0 0</pose>
+      <visual name="vis"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry>
+        <material><ambient>0.9 0.85 0.7 1</ambient><diffuse>0.95 0.9 0.75 1</diffuse></material></visual>
+      <collision name="col"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry></collision>
+    </link>
+    <link name="stump_batsman_3">
+      <pose>20.12 0.11 0.355 0 0 0</pose>
+      <visual name="vis"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry>
+        <material><ambient>0.9 0.85 0.7 1</ambient><diffuse>0.95 0.9 0.75 1</diffuse></material></visual>
+      <collision name="col"><geometry><cylinder><radius>0.012</radius><length>0.71</length></cylinder></geometry></collision>
+    </link>
+
+  </model>
+</sdf>

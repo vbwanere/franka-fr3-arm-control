@@ -23,6 +23,8 @@ JOINT_NAMES = [
     'fr3_joint5', 'fr3_joint6', 'fr3_joint7',
 ]
 
+WORLD_NAME = 'cricket_world'
+
 ACTION_NAME = '/fr3_arm_controller/follow_joint_trajectory'
 GRIPPER_TOPIC = '/fr3_gripper_controller/commands'
 BALL_SDF_PATH = '/home/vbwanere/Vaibhav-GitHub/franka-panda-arm-control/install/panda_pick_bringup/share/panda_pick_bringup/models/cricket_ball/model.sdf'
@@ -161,7 +163,7 @@ class BowlingJointRunner(Node):
         """Spawn ball between the gripper fingers."""
         # First remove if exists (ignore failure)
         remove_cmd = [
-            'ign', 'service', '-s', '/world/sensor_demo/remove',
+            'ign', 'service', '-s', '/world/{WORLD_NAME}/remove',
             '--reqtype', 'ignition.msgs.Entity',
             '--reptype', 'ignition.msgs.Boolean',
             '--timeout', '2000',
@@ -177,7 +179,7 @@ class BowlingJointRunner(Node):
             f'pose: {{ position: {{ x: 0.31, y: 0.018, z: 0.51 }} }}'
         )
         create_cmd = [
-            'ign', 'service', '-s', '/world/sensor_demo/create',
+            'ign', 'service', '-s', '/world/{WORLD_NAME}/create',
             '--reqtype', 'ignition.msgs.EntityFactory',
             '--reptype', 'ignition.msgs.Boolean',
             '--timeout', '5000',
