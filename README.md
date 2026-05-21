@@ -2,6 +2,10 @@
 
 A simulation environment for the Franka FR3 robotic arm with a wrist-mounted Intel RealSense D435 camera, built on ROS 2 Humble and Ignition Gazebo Fortress. Includes `ros2_control` integration, MoveIt2 motion planning, and a Cartesian ellipse trajectory demo.
 
+<p align="center">
+  <img src="assets/bowl.gif" height="300"/>
+</p>
+
 ## Features
 - Franka FR3 7-DOF arm in Ignition Gazebo with `gz_ros2_control`
 - Wrist-mounted RealSense D435 (official `realsense2_description` mesh, looking down the grip axis)
