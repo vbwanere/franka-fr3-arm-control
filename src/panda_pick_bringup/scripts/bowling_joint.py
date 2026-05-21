@@ -28,12 +28,10 @@ GRIPPER_TOPIC = '/fr3_gripper_controller/commands'
 BALL_SDF_PATH = '/home/vbwanere/Vaibhav-GitHub/franka-panda-arm-control/install/panda_pick_bringup/share/panda_pick_bringup/models/cricket_ball/model.sdf'
 
 # Gripper response time — ~150ms typical
-GRIPPER_OPEN_DELAY = 0.15  # seconds — open gripper this much *before* T_RELEASE
-
+GRIPPER_OPEN_DELAY = 0.20  # seconds — open gripper this much *before* T_RELEASE
 
 def deg(d):
     return d * math.pi / 180.0
-
 
 # Constant joint values
 J1_HOLD = deg(-160.0)
@@ -50,8 +48,8 @@ J4_END   = deg(-65.0)
 
 # Timing (seconds, from trajectory start)
 T_WINDUP        = 2.00
-T_J4_TRIGGER    = 2.85
-T_RELEASE       = 3.02
+T_J4_TRIGGER    = 2.80
+T_RELEASE       = 2.9
 T_FOLLOWTHROUGH = 3.45
 
 # When to trigger gripper open so it actually releases AT T_RELEASE
@@ -75,6 +73,18 @@ class BowlingJointRunner(Node):
 
         self.action_client = ActionClient(self, FollowJointTrajectory, ACTION_NAME)
         self.gripper_pub = self.create_publisher(Float64MultiArray, GRIPPER_TOPIC, 10)
+
+        for _ in range(50):  # up to 5 seconds
+            if self.gripper_pub.get_subscription_count() > 0:
+                break
+            rclpy.spin_once(self, timeout_sec=0.1)
+
+        if self.gripper_pub.get_subscription_count() == 0:
+            self.get_logger().error('No subscriber found on gripper topic')
+        else:
+            self.get_logger().info(
+                f'Gripper publisher connected ({self.gripper_pub.get_subscription_count()} subscribers)'
+            )
 
         self.get_logger().info(f'Waiting for action server at {ACTION_NAME}...')
         if not self.action_client.wait_for_server(timeout_sec=10.0):
@@ -132,6 +142,11 @@ class BowlingJointRunner(Node):
         gh = send_future.result()
         if not gh.accepted:
             return False
+        
+        # Pre-warm the gripper while the arm is moving
+        self.spin_wait(1.0)  # give arm 1s to start moving
+        self.set_gripper(0.04)  # open gripper concurrently with arm motion
+        
         rclpy.spin_until_future_complete(self, gh.get_result_async())
         self.get_logger().info('At ready pose.')
         return True
@@ -159,7 +174,7 @@ class BowlingJointRunner(Node):
         create_req = (
             f'sdf_filename: "{BALL_SDF_PATH}", '
             f'name: "cricket_ball", '
-            f'pose: {{ position: {{ x: 0.31, y: 0.0, z: 0.51 }} }}'
+            f'pose: {{ position: {{ x: 0.31, y: 0.018, z: 0.51 }} }}'
         )
         create_cmd = [
             'ign', 'service', '-s', '/world/sensor_demo/create',
@@ -229,18 +244,18 @@ class BowlingJointRunner(Node):
         self.go_to_ready()
 
         # 1. Partially close gripper (3cm gap, narrower than 7.3cm ball diameter)
-        self.set_gripper(0.025)
+        self.set_gripper(0.0)
         self.get_logger().info('Setting gripper to half-closed...')
-        self.spin_wait(1.5)
+        self.spin_wait(0.1)
 
         # 2. Now spawn the ball — fingers are already in position
         if not self.spawn_ball_at_gripper():
             return
         
         # 3. Close gripper around the ball
-        self.set_gripper(0.0)
+        self.set_gripper(0.005)
         self.get_logger().info('Closing gripper around ball...')
-        self.spin_wait(1.5)
+        self.spin_wait(0.1)
 
         # 5. Build and send bowling trajectory
         traj = self.build_trajectory()
@@ -278,6 +293,10 @@ class BowlingJointRunner(Node):
 
         result = result_future.result().result
         self.get_logger().info(f'Execution complete. Error code: {result.error_code}')
+
+        self.set_gripper(0.0)
+        self.get_logger().info('Closing gripper for cleanup...')
+        self.spin_wait(1.0)
 
         self.plot_recorded(traj)
 
